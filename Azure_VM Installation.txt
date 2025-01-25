@@ -1,3 +1,5 @@
 1) sudo apt install nginx -y: NGIX WEBHOST
 2) sudo apt install nodejs: To use javascript scripts
 3) sudo apt install npm: To use javascript scripts
+4) sudo apt install python3 python3-pip git: Install Python3
+5) pip3 install pandas numpy scikit-learn joblib: Install pandas numpy scikit-learn
