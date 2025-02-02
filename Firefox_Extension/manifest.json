@@ -1,18 +1,18 @@
 {
     "manifest_version": 2,
-    "name": "Borderify",
+    "name": "WebShield",
     "version": "1.0",
   
     "description": "Adds a red border to all webpages matching mozilla.org.",
   
     "icons": {
-      "48": "icons/border-48.png"
+      "48": "icons/logo.jpg"
     },
   
     "content_scripts": [
       {
         "matches": ["*://*.mozilla.org/*"],
-        "js": ["borderify.js"]
+        "js": ["webshield.js"]
       }
     ]
   }
