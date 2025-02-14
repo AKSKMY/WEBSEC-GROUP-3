@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebShield Alert Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #de4a4a;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #de4a4a;
+      padding: 30px;
+      max-width: 900px;
+      width: 100%;
+      text-align: left;         }
+
+    img {
+      max-width: 80px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 10px;
+    }
+
+    p {
+      font-size: 16px;
+      margin: 0 0 20px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 120px;    
+}
+
+    .proceed-button,
+    .cancel-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .proceed-button {
+      background-color: transparent;
+      color: white;
+      border: 2px solid white;
+      margin-right: 34px;
+    }
+
+    .proceed-button:hover {
+      background-color: white;
+      color: #de4a4a;
+    }
+
+    .cancel-button {
+      background-color: white;
+      color: #d43333;
+      border: none;
+    }
+
+    .cancel-button:hover {
+      background-color: #ffeaea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://img.icons8.com/color/96/warning-shield.png" alt="Warning Logo">
+    <h1>Security Alert: Possible Keylogger Detected</h1>
+    <p>
+      We have identified potential keylogging behavior on this page. This may compromise your sensitive information, including passwords and personal data.
+    </p>
+    <p>
+      Proceeding further could expose your data and privacy to significant risks. Please ensure you fully trust this website before continuing.
+    </p>
+    <p>
+      Click <strong>'Back to safety'</strong> to exit this page immediately and protect your data.<br>
+      Click <strong>'Proceed to site'</strong> if you are certain this page is trustworthy.
+    </p>
+    <div class="button-container">
+      <a href="#" class="cancel-button" onclick="goBack()">Back to safety</a>
+      <a href="#" class="proceed-button">Proceed to site</a>
+    </div>
+  </div>
+  <script>
+    function goBack() {
+  if (document.referrer) {
+    window.history.back();  // Go back to the previous page if there's a referrer
+  } else {
+    // If no referrer (i.e., the page was accessed directly), redirect to a safe page
+    window.location.href = "https://www.google.com"; // Change to your desired safe URL
+  }
+}
+  </script>
+</body>
+</html>
