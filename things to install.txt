@@ -1,1 +1,17 @@
-pip install pandas scikit-learn numpy matplotlib
+Libraries required to run ml_v2.py
+
+pip install pandas
+pip install numpy
+pip install scikit-learn
+pip install imbalanced-learn
+pip install joblib
+
+Libraries required to run keylogger.py
+
+pip install certifi==2022.6.15
+pip install charset-normalizer==2.1.0
+pip install idna==3.3
+pip install pynput==1.7.6
+pip install requests==2.28.1
+pip install six==1.16.0
+pip install urllib3==1.26.11
