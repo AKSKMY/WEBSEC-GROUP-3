@@ -1,0 +1,13 @@
+FEATURES: Time_Interval	Key_Frequency	API_Call_Count	Memory_Usage	CPU_Usage
+
+{"prediction":[0]}
+
+projectuser2214@vm-2214-lab-deployment-001:~$ curl -X POST "http://127.0.0.1:5000/predict" -H "Content-Type: application/json" -d '{"features": [0.1, 0.15, 0.2, 0.18, 0.12]}'
+
+#For {"prediction": [1]}
+
+curl -X POST "http://127.0.0.1:5000/predict" -H "Content-Type: application/json" -d '{"features": [0.33, 0.22, 0.11, 0.44, 0.55]}'
+
+#{"prediction": [1]}
+
+curl -X POST "http://127.0.0.1:5000/predict" -H "Content-Type: application/json" -d '{"features": [0.99, 0.98, 0.97, 0.96, 0.95]}'

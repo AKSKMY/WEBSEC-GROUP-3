@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Keylogger Detector",
+  "name": "WebShield Tool",
   "version": "1.0",
   "description": "Detects and alerts users about potential keyloggers on websites.",
   "permissions": ["activeTab", "scripting", "storage"],
