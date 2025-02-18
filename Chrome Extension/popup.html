@@ -1,12 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Keylogger Detector</title>
+    <title>Keylogger Detector v1</title>
+    <style>
+        body {
+            font-family: fangsong;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            display: inline-block;
+        }
+        p {
+            font-size: 18px;
+        }
+        #status {
+            font-weight: bold;
+            color: green;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .container {
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            outline: 6px double;
+            outline-offset: 10px;
+            border-radius: inherit;
+
+        }
+    </style>
 </head>
 <body>
-    <h1>Keylogger Detector</h1>
-    <p>Status: <span id="status">Active</span></p>
-    <button id="test">Test Detection</button>
+    <div class="container">
+        <h1>Keylogger Detector</h1>
+        <p>Status: <span id="status">Active</span></p>
+        <button id="test">Turn ON/OFF</button>
+    </div>
     <script src="popup.js"></script>
 </body>
 </html>
