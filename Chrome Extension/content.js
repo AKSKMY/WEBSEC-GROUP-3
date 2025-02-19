@@ -1,26 +1,37 @@
-function extractAndSendScripts() {
-    let scripts = document.getElementsByTagName('script');
-    let scriptContents = [];
+if (!window.hasInjected) {
+    window.hasInjected = true; // Prevent duplicate execution
 
-    for (let script of scripts) {
-        if (script.src) {
-            scriptContents.push({ type: "external", content: script.src });
-        } else {
-            scriptContents.push({ type: "inline", content: script.innerText });
+    function extractAndSendScripts() {
+        let scripts = document.getElementsByTagName('script');
+        let scriptContents = [];
+
+        for (let script of scripts) {
+            if (script.src) {
+                scriptContents.push({ type: "external", content: script.src });
+            } else {
+                scriptContents.push({ type: "inline", content: script.innerText });
+            }
         }
+
+        console.log("Extracted scripts:", scriptContents);
+
+        chrome.runtime.sendMessage({ type: "analyzeScripts", data: scriptContents });
     }
 
-    console.log("📡 Sending extracted scripts to backend for analysis...");
+    // Observe dynamically added scripts
+    const observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+            if (mutation.addedNodes) {
+                mutation.addedNodes.forEach(node => {
+                    if (node.tagName === 'SCRIPT') {
+                        extractAndSendScripts();
+                    }
+                });
+            }
+        }
+    });
 
-    chrome.runtime.sendMessage({ type: "analyzeScripts", scripts: scriptContents });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener("load", extractAndSendScripts);
 }
-
-extractAndSendScripts();  // Run once on page load
-
-// Re-run when the DOM is updated dynamically (e.g., AJAX calls)
-const observer = new MutationObserver(() => {
-    extractAndSendScripts();
-});
-observer.observe(document, { childList: true, subtree: true });
-
-console.log("✅ content.js script extraction is active.");
