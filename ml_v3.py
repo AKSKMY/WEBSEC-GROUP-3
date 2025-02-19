@@ -1,4 +1,4 @@
-# ml.py: Keylogger Detection System
+# ml.py: Keylogger Detection System with Critical Feature Detection
 
 # 1. Import Libraries
 import pandas as pd
@@ -17,7 +17,15 @@ def load_data(file_path):
     """Loads and preprocesses the data."""
     try:
         data = pd.read_csv(file_path)
-        # Assuming 'Label' column contains 0 (benign) and 1 (keylogger)
+        
+        # Expected feature columns
+        expected_columns = ["Encoded_Strings", "Obfuscation_Usage", "Keystroke_Hooks", "External_Requests", "Label"]
+
+        # Ensure dataset contains required features
+        if not set(expected_columns).issubset(data.columns):
+            raise ValueError("Dataset missing required features!")
+
+        # Split data into features and labels
         X = data.drop(columns=['Label'])  # Features
         y = data['Label']  # Labels
         return X, y
@@ -45,59 +53,51 @@ def balance_dataset(X, y):
 
 # 5. Train Model
 def train_model(X, y):
-    """Trains a Random Forest model."""
+    """Trains a Random Forest model with critical feature detection."""
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
-    model = RandomForestClassifier(random_state=42, class_weight={0: 1, 1: 2})
+    model = RandomForestClassifier(random_state=42, class_weight={0: 1, 1: 2}, n_estimators=100)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
     # Evaluation
-    print("Model Evaluation:")
+    print("\n� Model Evaluation:")
     print(classification_report(y_test, y_pred))
-    print("Confusion Matrix:")
+    print("\n� Confusion Matrix:")
     print(confusion_matrix(y_test, y_pred))
 
-    print("Class distribution in Test Set:")
-    print(pd.Series(y_test).value_counts())
+    # Print feature importances
+    print("\n� Feature Importances:")
+    feature_importances = pd.Series(model.feature_importances_, index=X.columns)
+    print(feature_importances.sort_values(ascending=False))
 
     return model
 
 # 6. Save the Model
 def save_model(model, directory="Keylogger Model"):
     """Saves the trained model with a timestamp in the specified directory."""
-    # Create the directory if it doesn't exist
     os.makedirs(directory, exist_ok=True)
-
-    # Get the current date and time
     timestamp = datetime.now().strftime("%m-%d_%H%M")
-    
-    # Construct the filename
-    filename = f"keylogger_model_{timestamp}_SMOTE.pkl"
+    filename = f"keylogger_model_{timestamp}_obfuscation.pkl"
     filepath = os.path.join(directory, filename)
 
-    # Save the model
     joblib.dump(model, filepath)
     print(f"✅ Model saved as {filepath}")
 
 # 7. Main Function
 if __name__ == "__main__":
-    # Update dataset path
     dataset_path = "synthetic_keylogger_dataset_new.csv"
 
-    print("Loading data...")
+    print("� Loading data...")
     X, y = load_data(dataset_path)
 
     if X is not None and y is not None:
-        print("Preprocessing features...")
+        print("⚙️ Preprocessing features...")
         X = preprocess_features(X)  # Saves scaler
 
-        # print("Balancing dataset...")
-        # X, y = balance_dataset(X, y)  # Apply SMOTE before training
-
-        print("Training model...")
+        print("� Training model...")
         model = train_model(X, y)
 
-        print("Saving model...")
-        save_model(model, directory="Keylogger Model")
+        print("� Saving model...")
+        save_model(model)
     else:
         print("❌ Failed to load data. Exiting.")
