@@ -1,38 +1,26 @@
-function sendKeyloggerData(event) {
-    const data = {
-        key: event.key,
-        timestamp: Date.now()
-    };
+function extractAndSendScripts() {
+    let scripts = document.getElementsByTagName('script');
+    let scriptContents = [];
 
-    console.log("📡 Sending data to backend:", data);
-
-    try {
-        chrome.runtime.sendMessage(
-            { type: "checkKeylogger", data: data },
-            response => {
-                if (chrome.runtime.lastError) {
-                    console.error("❌ Background script unavailable, retrying...");
-                    setTimeout(() => sendKeyloggerData(event), 1000); // Retry after 1 second
-                    return;
-                }
-
-                if (response) {
-                    console.log("✅ Response from backend:", response);
-                    if (response.prediction === 1) {
-                        alert("⚠️ Keylogger Detected! Please be cautious.");
-                    }
-                } else {
-                    console.error("❌ No response from backend.");
-                }
-            }
-        );
-    } catch (error) {
-        console.error("❌ Extension context invalidated, retrying...");
-        setTimeout(() => sendKeyloggerData(event), 1000); // Retry after 1 second
+    for (let script of scripts) {
+        if (script.src) {
+            scriptContents.push({ type: "external", content: script.src });
+        } else {
+            scriptContents.push({ type: "inline", content: script.innerText });
+        }
     }
+
+    console.log("📡 Sending extracted scripts to backend for analysis...");
+
+    chrome.runtime.sendMessage({ type: "analyzeScripts", scripts: scriptContents });
 }
 
-// Listen for keypress events and call `sendKeyloggerData`
-document.addEventListener("keydown", sendKeyloggerData);
+extractAndSendScripts();  // Run once on page load
 
-console.log("✅ content.js has been injected successfully.");
+// Re-run when the DOM is updated dynamically (e.g., AJAX calls)
+const observer = new MutationObserver(() => {
+    extractAndSendScripts();
+});
+observer.observe(document, { childList: true, subtree: true });
+
+console.log("✅ content.js script extraction is active.");

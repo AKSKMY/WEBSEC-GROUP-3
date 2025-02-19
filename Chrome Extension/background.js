@@ -1,23 +1,26 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "checkKeylogger") {
-        fetch("http://192.168.200.132:8000/predict", {
+    if (message.type === "analyzeScripts") {
+        fetch("http://192.168.200.132:8000/deobfuscate_scripts", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(message.data)
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ scripts: message.scripts })
         })
         .then(response => response.json())
         .then(result => {
-            console.log("🖥️ Backend Prediction:", result);
-            sendResponse({ prediction: result.prediction });
+            console.log("🖥️ Script Analysis Result:", result);
+
+            let likelihood = result.likelihood;  // Probability score from backend
+            if (likelihood > 50) {
+                alert(`⚠️ Warning! ${likelihood}% chance this website has a keylogger.`);
+            } else {
+                console.log(`✅ Safe: Only ${likelihood}% chance of keylogger.`);
+            }
         })
         .catch(error => {
-            console.error("❌ Error communicating with backend:", error);
-            sendResponse({ error: "Failed to connect to backend." });
+            console.error("❌ Error analyzing scripts:", error);
         });
 
-        return true; // Keeps the service worker alive for async response
+        return true;
     }
 });
 
