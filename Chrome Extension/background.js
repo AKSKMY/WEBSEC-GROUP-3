@@ -1,64 +1,87 @@
 const API_URL = "http://20.189.97.207:8000/analyze"; // Ensure this is correct
 
+console.log("✅ Background script is running!");
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("📩 Received message in background.js:", message);
+
+    if (message.type === "testMessage") {
+        console.log("🛠️ Test message received. Sending response...");
+        sendResponse({ success: true, message: "Background script is working!" });
+        return true;
+    }
+
     if (message.type === "analyzeScripts") {
-        console.log("📡 Received script data for analysis:", message.data);
+        console.log("📡 Sending script data for analysis:", JSON.stringify(message.data, null, 2));
 
         fetch(API_URL, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ scripts: message.data })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(result => {
             console.log("✅ Received analysis result from backend:", result);
-            
-            if (!result.results || result.results.length === 0) {
-                console.warn("⚠️ No results received from backend.");
-                return;
-            }
+            let maxLikelihood = Math.max(...result.results.map(r => r.likelihood || 0)); // ✅ Corrected
+            console.log(`➡️ Max likelihood: ${maxLikelihood}%`); // ✅ Changed "likelihood" to "maxLikelihood"
 
-            let likelihood = result.results[0]?.likelihood || 0;
+            if (maxLikelihood > 50) { // ✅ Changed "likelihood" to "maxLikelihood"
+                console.warn(`⚠️ High likelihood detected: ${maxLikelihood}%`); // ✅
 
-            if (likelihood > 50) {
-                // Send message to content script to show alert
+                // Log before sending message.
                 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                     if (tabs.length > 0) {
-                        chrome.tabs.sendMessage(tabs[0].id, { type: "showAlert", likelihood });
+                        console.log("📩 Sending alert message to content.js in tab:", tabs[0].id);
+                        chrome.tabs.sendMessage(tabs[0].id, { 
+                            type: "showAlert", 
+                            likelihood: maxLikelihood // ✅ Changed "likelihood" to "maxLikelihood"
+                        }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                console.error("❌ Error sending message to content.js:", chrome.runtime.lastError.message);
+                            } else if (response && response.success) {
+                                console.log("✅ Alert sent successfully.");
+                            }
+                        });
+                    } else {
+                        console.warn("⚠️ No active tab found to send alert.");
                     }
                 });
+            } else {
+                console.log("ℹ️ Likelihood too low, no alert sent.");
             }
         })
         .catch(error => {
             console.error("❌ Error analyzing scripts:", error);
-            // Send message to content script for error handling
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                if (tabs.length > 0) {
-                    chrome.tabs.sendMessage(tabs[0].id, { type: "showAlert", error: "Failed to analyze scripts. Check console for details." });
-                }
-            });
         });
 
-        return true; // Ensures async behavior
+        return true;
     }
 });
 
-// Inject `content.js` after page loads
+// Optionally, if you are already injecting content.js via the manifest,
+// you might not need to inject it again. If you want to keep it, you can:
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url && tab.url.startsWith("http")) {
-        console.log(`🔍 Injecting content.js into ${tab.url}`);
-
+        console.log(`🔍 Checking injection status for content.js in ${tab.url}`);
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            files: ["content.js"]
-        })
-        .catch(error => console.error("❌ Failed to inject content script:", error));
+            func: () => !!window.hasInjected
+        }, (result) => {
+            if (chrome.runtime.lastError) {
+                console.error("❌ Failed to check content.js injection status:", chrome.runtime.lastError.message);
+                return;
+            }
+            if (!result || !result[0].result) {
+                console.log("🚀 Injecting content.js into:", tab.url);
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    files: ["content.js"]
+                })
+                .then(() => console.log("✅ content.js injected successfully!"))
+                .catch(error => console.error("❌ Failed to inject content script:", error));
+            } else {
+                console.log("✅ content.js is already injected in:", tab.url);
+            }
+        });
     }
 });

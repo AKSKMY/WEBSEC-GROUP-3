@@ -35,6 +35,19 @@ def detect_encoding_type(string):
     else:
         return "None"
 
+# Function to decode Base64 JavaScript
+def decode_base64_js(content):
+    base64_match = re.search(r"data:text/javascript;base64,([A-Za-z0-9+/=]+)", content)
+    if base64_match:
+        try:
+            decoded_content = base64.b64decode(base64_match.group(1)).decode("utf-8")
+            print("🔓 Decoded Base64 JavaScript:", decoded_content)
+            return decoded_content
+        except Exception as e:
+            print("❌ Failed to decode Base64:", e)
+            return content  # Return original if decoding fails
+    return content
+
 # Function to analyze JavaScript code for suspicious behavior
 def analyze_js_code(script):
     try:
@@ -42,6 +55,9 @@ def analyze_js_code(script):
 
         if isinstance(script, dict):  # Extract content if script is a dict
             script = script.get("content", "")
+
+        # Decode Base64 scripts
+        script = decode_base64_js(script)
 
         beautified_script = jsbeautifier.beautify(script)
 
@@ -51,25 +67,33 @@ def analyze_js_code(script):
         entropy = shannon_entropy(beautified_script)
         eval_usage = 1 if "eval(" in beautified_script or "Function(" in beautified_script else 0
 
-        # Corrected Regex for Keylogger Hooks Detection
-        keystroke_hooks = len(re.findall(r'(onkeydown|onkeypress|onkeyup|addEventListener\s*\(\s*["\']keydown["\']\s*\))', beautified_script))
+        # Common keylogger characteristics
+        COMMON_CHARACTERISTICS = {
+            "Event Listeners": ["keydown", "keypress", "keyup"],
+            "Key Code Conversion": ["String.fromCharCode", "e.keyCode", "e.which", "e.key"],
+            "Data Accumulation": ["record", "keys", "buffer"],
+            "Data Transmission": ["$.ajax", "new Image().src", "WebSocket", "ws.send"],
+            "Cross-Domain Requests": ["crossDomain: true"],
+            "Special Key Handling": ["Backspace", "Enter", "Shift", "Tab", "Ctrl", "Alt", "Esc", "Delete", "CapsLock"],
+            "Error Handling": ["success", "error", "onmessage"]
+        }
 
-        # Corrected Regex for External Requests
-        external_requests = len(re.findall(r'fetch\s*\(|XMLHttpRequest|new\s+Image\s*\(\s*\)', beautified_script))
+        # Extract feature occurrences from script content
+        feature_counts = {category: 0 for category in COMMON_CHARACTERISTICS}
 
-        # Corrected Regex for Data Storage Operations
-        data_storage = len(re.findall(r'localStorage|sessionStorage|document\.cookie|\+=\s*event\.key', beautified_script))
+        for category, patterns in COMMON_CHARACTERISTICS.items():
+            for pattern in patterns:
+                matches = re.findall(re.escape(pattern), beautified_script)
+                feature_counts[category] += len(matches)
 
-        # 🔹 Ensure 7 Features Are Passed to the ML Model
-        event_listeners = keystroke_hooks
-        key_code_conversion = eval_usage
-        # Detect if script accumulates keystrokes before sending them
-        data_accumulation = 1 if "keys +=" in beautified_script else 0
-        data_transmission = external_requests
-        # Detect use of keylogging-related key event manipulations
-        special_key_handling = len(re.findall(r'String\.fromCharCode|keyCode|which|charCode', beautified_script))
-        cross_domain_requests = 1 if "document.domain" in beautified_script else 0
-        error_handling = 1 if "try{" in beautified_script else 0
+        # Assign feature values
+        event_listeners = feature_counts["Event Listeners"]
+        key_code_conversion = feature_counts["Key Code Conversion"]
+        data_accumulation = feature_counts["Data Accumulation"]
+        data_transmission = feature_counts["Data Transmission"]
+        cross_domain_requests = feature_counts["Cross-Domain Requests"]
+        special_key_handling = feature_counts["Special Key Handling"]
+        error_handling = feature_counts["Error Handling"]
 
         print("\n🚀 Extracted Features for Debugging:")
         print(f"Event Listeners: {event_listeners}")
@@ -80,7 +104,7 @@ def analyze_js_code(script):
         print(f"Cross Domain Requests: {cross_domain_requests}")
         print(f"Error Handling: {error_handling}")
 
-        # Convert feature list into a pandas DataFrame (to match ML model training format)
+        # Convert feature list into a pandas DataFrame
         feature_names = ["Event_Listeners", "Key_Code_Conversion", "Data_Accumulation",
                         "Data_Transmission", "Special_Key_Handling", "Cross_Domain_Requests",
                         "Error_Handling"]
@@ -89,11 +113,18 @@ def analyze_js_code(script):
                                         data_transmission, special_key_handling, cross_domain_requests,
                                         error_handling]], columns=feature_names)
 
-        # Standardize the input before sending it to the ML model
-        script_features = pd.DataFrame(script_features, columns=feature_names)
+        # <-- Add this print to verify the feature vector:
+        print("Extracted feature vector:", script_features.iloc[0].to_dict())
 
-        probabilities = script_model.predict_proba(script_features)[0]
+        # Standardize the input before sending it to the ML model
+        script_features_scaled = scaler.transform(script_features)
+
+        probabilities = script_model.predict_proba(script_features_scaled)[0]
         keylogger_probability = round(probabilities[1] * 100, 2)
+
+        # 🚀 Prevent false positives: If all extracted features are 0, assume it's NOT a keylogger
+        if sum(script_features.iloc[0]) == 0:
+            keylogger_probability = 0.0
 
         return {
             "deobfuscated_code": beautified_script,

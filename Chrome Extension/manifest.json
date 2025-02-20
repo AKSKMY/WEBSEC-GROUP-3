@@ -3,7 +3,7 @@
   "name": "WebShield Tool",
   "version": "1.0",
   "description": "Detects and alerts users about potential keyloggers on websites.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "background.js"
