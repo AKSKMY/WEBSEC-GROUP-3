@@ -22,23 +22,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .then(response => response.json())
         .then(result => {
             console.log("✅ Received analysis result from backend:", result);
-            let maxLikelihood = Math.max(...result.results.map(r => r.likelihood || 0)); // ✅ Corrected
-            console.log(`➡️ Max likelihood: ${maxLikelihood}%`); // ✅ Changed "likelihood" to "maxLikelihood"
+            let maxLikelihood = Math.max(...result.results.map(r => r.likelihood || 0));
+            console.log(`➡️ Max likelihood: ${maxLikelihood}%`);
 
-            if (maxLikelihood > 50) { // ✅ Changed "likelihood" to "maxLikelihood"
-                console.warn(`⚠️ High likelihood detected: ${maxLikelihood}%`); // ✅
+            if (maxLikelihood > 50) {
+                console.warn(`⚠️ High likelihood detected: ${maxLikelihood}%`);
 
-                // Log before sending message.
                 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                     if (tabs.length > 0) {
                         console.log("📩 Sending alert message to content.js in tab:", tabs[0].id);
                         chrome.tabs.sendMessage(tabs[0].id, { 
                             type: "showAlert", 
-                            likelihood: maxLikelihood // ✅ Changed "likelihood" to "maxLikelihood"
+                            likelihood: maxLikelihood 
                         }, (response) => {
                             if (chrome.runtime.lastError) {
                                 console.error("❌ Error sending message to content.js:", chrome.runtime.lastError.message);
-                            } else if (response && response.success) {
+                            } else if (response?.success) {
                                 console.log("✅ Alert sent successfully.");
                             }
                         });
@@ -49,17 +48,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             } else {
                 console.log("ℹ️ Likelihood too low, no alert sent.");
             }
+            sendResponse({ success: true }); // ✅ Ensure response is sent
         })
         .catch(error => {
             console.error("❌ Error analyzing scripts:", error);
+            sendResponse({ success: false }); // ✅ Send response on error
         });
 
-        return true;
+        return true; // ✅ Keep message channel open
     }
 });
 
-// Optionally, if you are already injecting content.js via the manifest,
-// you might not need to inject it again. If you want to keep it, you can:
+// Inject content.js on page load
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete" && tab.url && tab.url.startsWith("http")) {
         console.log(`🔍 Checking injection status for content.js in ${tab.url}`);

@@ -24,13 +24,17 @@ if (!window.hasInjected) {
         if (scriptContents.length > 0) {
             console.log("📜 Extracted scripts:", scriptContents);
 
-            chrome.runtime.sendMessage({ type: "analyzeScripts", data: scriptContents }, (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error("❌ Message send error:", chrome.runtime.lastError.message);
-                } else if (response && response.success) {
-                    console.log("✅ Scripts sent successfully");
+            chrome.runtime.sendMessage(
+                { type: "analyzeScripts", data: scriptContents },
+                (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error("❌ Message send error:", chrome.runtime.lastError.message);
+                    } else if (response?.success) {
+                        console.log("✅ Scripts sent successfully");
+                    }
                 }
-            });
+            );
+            return true; // ✅ Keep the message channel open
         }
     }
 
