@@ -1,9 +1,15 @@
 {
   "manifest_version": 3,
   "name": "WebShield Tool",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Detects and alerts users about potential keyloggers on websites.",
-  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "permissions": [
+    "activeTab", 
+    "scripting", 
+    "storage", 
+    "tabs", 
+    "webNavigation"
+  ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "background.js"
@@ -21,5 +27,11 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["pre-scan.html", "pre-scan.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

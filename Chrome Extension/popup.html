@@ -1,57 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Keylogger Detector v1</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebShield Tool</title>
     <style>
         body {
-            font-family: fangsong;
-            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            min-width: 350px;
+            width: 350px;
+            overflow-x: hidden;
         }
+        
+        .container {
+            margin: 15px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        
         h1 {
             color: #333;
-            display: inline-block;
+            font-size: 20px;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
         }
-        p {
-            font-size: 18px;
+        
+        .setting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
         }
-        #status {
+        
+        .status-label {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .status {
+            margin-left: 8px;
             font-weight: bold;
-            color: green;
         }
+        
+        .active {
+            color: #28a745;
+        }
+        
+        .inactive {
+            color: #dc3545;
+        }
+        
+        .disabled {
+            color: #6c757d;
+        }
+        
         button {
             background-color: #28a745;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background 0.3s;
+            transition: background-color 0.3s;
         }
+        
         button:hover {
             background-color: #218838;
         }
-        .container {
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            outline: 6px double;
-            outline-offset: 10px;
-            border-radius: inherit;
-
+        
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 15px 0;
+        }
+        
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Keylogger Detector</h1>
-        <p>Status: <span id="status">Active</span></p>
-        <button id="test">Turn ON/OFF</button>
+        <h1>WebShield Tool</h1>
+        
+        <div class="setting">
+            <div class="status-label">
+                Detection Status: 
+                <span id="status" class="status active">Active</span>
+            </div>
+            <button id="test">Toggle</button>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="setting">
+            <div class="status-label">
+                Pre-scan Websites:
+                <span id="prescan-status" class="status disabled">Disabled</span>
+            </div>
+            <button id="prescan-toggle">Toggle</button>
+        </div>
+        
+        <div class="info-box">
+            <div class="info-title">What is Pre-scan?</div>
+            <p>When enabled, WebShield will analyze websites before you visit them to detect potential keyloggers.</p>
+        </div>
     </div>
     <script src="popup.js"></script>
 </body>
