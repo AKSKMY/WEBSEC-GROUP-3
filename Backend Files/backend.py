@@ -118,6 +118,7 @@ def analyze_js_code(script):
 
         # Standardize the input before sending it to the ML model
         script_features_scaled = scaler.transform(script_features)
+        script_features_scaled = pd.DataFrame(script_features_scaled, columns=script_features.columns)
 
         probabilities = script_model.predict_proba(script_features_scaled)[0]
         keylogger_probability = round(probabilities[1] * 100, 2)
