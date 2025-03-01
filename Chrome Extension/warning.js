@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // Assuming maxLikelihood and detection details come from the previous scan result
-    let maxLikelihood = 75; // Example likelihood (this should be set dynamically)
+    let maxLikelihood = parseInt(urlParams.get('likelihood')) || 0;
     let detailsFound = true; // This flag should be set based on scan results
   
     // Update the security alert text based on likelihood
