@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebShield Alert Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eb2020;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #eb2020;
+      padding: 30px;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    img {
+      max-width: 80px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 10px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-inline: 5px;
+      font-weight: 500;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 120px;    
+    }
+
+    .proceed-button,
+    .cancel-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .proceed-button {
+      background-color: transparent;
+      color: white;
+      border: 2px solid white;
+      margin-right: 34px;
+    }
+
+    .proceed-button:hover {
+      background-color: white;
+      color: #de4a4a;
+    }
+
+    .cancel-button {
+      background-color: white;
+      color: #d43333;
+      border: none;
+    }
+
+    .cancel-button:hover {
+      background-color: #ffeaea;
+    }
+
+    .warning-box {
+      background: #ffffffe6; 
+      color: black;
+      padding: 5px;
+      border-radius: 20px;
+      padding-top: 15px;
+    }
+
+    .warning-box ul {
+      list-style-type: circle;
+      margin-left: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://img.icons8.com/color/96/warning-shield.png" alt="Warning Logo">
+    
+    <!-- Dynamic Heading for Security Alert -->
+    <h1 id="security-alert">Security Alert: Loading...</h1>
+    
+    <p id="likelihood-text"></p>
+    <p>
+       This may compromise your sensitive information, including passwords and personal data.
+       Please ensure you fully trust this website before continuing.
+      </p>
+    
+    <div class="warning-box">
+      <strong style="margin-left: 10px;">⚡ Breakdown of Suspicious Behaviours Detected:</strong>
+      <br>
+      <ul id="detection-details">
+        <!-- Dynamic Details will be injected here -->
+      </ul>
+    </div>
+
+    <div class="button-container">
+      <a href="#" class="cancel-button onclick="goBack()" id="go-back">Back to safety</a>
+      <a href="#" class="proceed-button" id="proceed-button">Proceed to site</a>
+    </div>
+  </div>
+
+  <script src="warning.js"></script> 
+</body>
+</html>

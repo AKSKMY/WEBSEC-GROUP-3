@@ -79,19 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     console.log("Final maximum likelihood:", maxLikelihood);
                     
-                    // Display results based on likelihood
-                    if (maxLikelihood > 80) {
-                        resultMessage.className = 'result danger';
-                        resultMessage.style.display = 'block';
-                        resultMessage.innerHTML = `<h2>⚠️ High Risk Detected!</h2>
-                            <p>This website has a ${maxLikelihood}% chance of containing a keylogger.</p>
-                            <p>We strongly recommend not proceeding to this website.</p>`;
-                    } else if (maxLikelihood > 50) {
-                        resultMessage.className = 'result warning';
-                        resultMessage.style.display = 'block';
-                        resultMessage.innerHTML = `<h2>⚠️ Potential Risk Detected</h2>
-                            <p>This website has a ${maxLikelihood}% chance of containing a keylogger.</p>
-                            <p>Proceed with caution. Your keyboard inputs may be recorded.</p>`;
+                    // If the likelihood is above a certain threshold, redirect to the warning page
+                    if (maxLikelihood > 50) {
+                        const warningPageUrl = `warning.html?likelihood=${maxLikelihood}&targetUrl=${encodeURIComponent(targetUrl)}`;
+                        console.log(`🔴 Redirecting to warning page with likelihood ${maxLikelihood}%`);
+                        window.location.href = warningPageUrl;  // Redirect to warning page
                     } else {
                         resultMessage.className = 'result safe';
                         resultMessage.style.display = 'block';
@@ -132,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Button event handlers
+    // Button event handlers (these are for the current page, will be replaced after redirect)
     proceedButton.addEventListener('click', function() {
         console.log("👍 User chose to proceed to:", targetUrl);
         if (targetUrl) {
